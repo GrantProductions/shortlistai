@@ -1,0 +1,6 @@
+supabase
+pyMuPDF
+python-dotenv
+flask
+openai
+flask-cors

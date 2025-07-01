@@ -1,0 +1,299 @@
+{% extends 'base.html' %} {% block title %}CSV Upload - TalentAI{% endblock %}
+{% block content %}
+<style>
+    .upload-container {
+        background-color: rgba(31, 41, 55, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(55, 65, 81, 0.5);
+    }
+    
+    .progress-bar {
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    .file-upload-label {
+        transition: all 0.3s ease;
+        border: 2px dashed rgba(124, 58, 237, 0.5);
+    }
+    
+    .file-upload-label:hover {
+        border-color: rgba(124, 58, 237, 0.8);
+        background-color: rgba(17, 24, 39, 0.5);
+    }
+    
+    .file-upload-label.dragover {
+        border-color: rgba(16, 185, 129, 0.8);
+        background-color: rgba(6, 95, 70, 0.2);
+    }
+
+    .parallax-circle {
+        position: absolute;
+        will-change: transform;
+        transition: transform 0.1s linear;
+    }
+</style>
+
+<div class="min-h-screen bg-gray-900 pt-24 pb-12 px-4 relative overflow-hidden">
+
+    <div id="circle1" class="parallax-circle -bottom-20 -left-20 w-80 h-80 bg-indigo-900 rounded-full filter blur-3xl opacity-40 z-0" data-speed="0.3"></div>
+    <div id="circle2" class="parallax-circle top-1/3 -right-16 w-64 h-64 bg-purple-900 rounded-full filter blur-3xl opacity-30 z-0" data-speed="0.5"></div>
+    <div id="circle3" class="parallax-circle top-1/5 left-1/5 w-96 h-96 bg-blue-900 rounded-full filter blur-2xl opacity-20 z-0" data-speed="0.2"></div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold text-white mb-3">Add New Position</h1>
+            <p class="text-gray-400 max-w-lg mx-auto">
+                Upload candidate data and job description to start the AI matching process
+            </p>
+        </div>
+        
+        <form
+            id="upload-form"
+            method="POST"
+            enctype="multipart/form-data"
+            class="upload-container rounded-xl p-8 shadow-lg"
+        >
+            <div class="mb-6">
+                <label for="listing_name" class="block text-gray-300 mb-2 font-medium">
+                    Job Listing Name
+                </label>
+                <input
+                    type="text"
+                    id="listing_name"
+                    name="listing_name"
+                    placeholder="e.g. Senior Backend Engineer"
+                    required
+                    class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-500"
+                />
+            </div>
+
+            <!-- Job Description -->
+            <div class="mb-8">
+                <label for="job_description" class="block text-gray-300 mb-2 font-medium">
+                    Job Description
+                </label>
+                <textarea
+                    id="job_description"
+                    name="job_description"
+                    rows="8"
+                    required
+                    placeholder="Paste the complete job description here..."
+                    class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-500"
+                >We are looking for a highly motivated Software Engineer to join our backend systems team. As part of a fast-growing startup, you'll design and build scalable APIs, work with cloud infrastructure, and contribute to our machine learning pipeline. You'll collaborate with product managers, frontend developers, and data scientists to deliver mission-critical features.
+
+Responsibilities:
+- Develop and maintain RESTful APIs using Python and Flask
+- Work with PostgreSQL and Supabase for data modeling and querying
+- Integrate third-party APIs and optimize backend performance
+- Collaborate in an Agile environment with frequent sprints and standups
+- Contribute to CI/CD workflows and write unit/integration tests
+
+Requirements:
+- Strong proficiency in Python
+- Experience with cloud platforms like AWS, GCP, or Vercel
+- Familiarity with SQL databases (PostgreSQL preferred)
+- Understanding of system design and scalable architecture
+- Bonus: Exposure to machine learning, LLMs, or vector databases
+
+We're a remote-first team with flexible hours, equity options, and an opportunity to shape the future of recruiting automation.</textarea>
+            </div>
+
+            <!-- File Upload -->
+            <div class="mb-8">
+                <label class="block text-gray-300 mb-4 font-medium">
+                    Candidate CSV File
+                </label>
+                <input
+                    type="file"
+                    name="csvfile"
+                    id="csvfile"
+                    accept=".csv"
+                    class="hidden"
+                />
+                <label 
+                    for="csvfile" 
+                    id="file-upload-label"
+                    class="file-upload-label flex flex-col items-center justify-center p-12 rounded-xl cursor-pointer bg-gray-800 hover:bg-gray-700 transition-colors duration-200"
+                >
+                    <div class="bg-indigo-900 bg-opacity-50 p-5 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-lg font-medium text-white mb-1">Click to upload CSV</p>
+                    <p class="text-sm text-gray-400">or drag and drop file here</p>
+                    <p class="text-xs text-gray-500 mt-2">Supports .csv files with candidate data</p>
+                </label>
+            </div>
+
+            <div id="progress-container" class="space-y-8 hidden">
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-300 font-medium">Vector Matching</span>
+                        <span class="text-gray-400" id="filtering-percent">0%</span>
+                    </div>
+                    <div class="progress-bar w-full h-2.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                            id="filtering-bar"
+                            class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
+                            style="width: 0%"
+                        ></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-300 font-medium">Background Analysis</span>
+                        <span class="text-gray-400" id="background-percent">0%</span>
+                    </div>
+                    <div class="progress-bar w-full h-2.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                            id="background-bar"
+                            class="h-full bg-gradient-to-r from-blue-500 to-teal-400 rounded-full transition-all duration-500 ease-out"
+                            style="width: 0%"
+                        ></div>
+                    </div>
+                </div>
+                
+                <div class="pt-6 flex justify-between">
+                    <!-- Back Button -->
+                    <a href="{{ url_for('phone_settings') }}"
+                        class="px-6 py-3 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-indigo-500 hover:bg-gray-700 transition-colors duration-200 flex items-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                        </svg>
+                        Back
+                    </a>
+                    
+                    <!-- Next Button -->
+                    <a 
+                        id="next-button"
+                        href="{{ url_for('phone_settings') }}"
+                        class="hidden px-6 py-3 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200 flex items-center"
+                    >
+                        Continue
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+        // Parallax effect for gradient circles
+    document.addEventListener('DOMContentLoaded', function() {
+        const circles = document.querySelectorAll('.parallax-circle');
+        
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.pageYOffset;
+            
+            circles.forEach(circle => {
+                const speed = parseFloat(circle.getAttribute('data-speed'));
+                const yPos = -(scrollPosition * speed);
+                
+                // Apply the transform with the calculated position
+                circle.style.transform = `translate3d(0, ${yPos}px, 0)`;
+            });
+        });
+    });
+    // Drag and drop functionality
+    const fileUploadLabel = document.getElementById('file-upload-label');
+    const fileInput = document.getElementById('csvfile');
+    
+    fileUploadLabel.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadLabel.classList.add('dragover');
+    });
+    
+    fileUploadLabel.addEventListener('dragleave', () => {
+        fileUploadLabel.classList.remove('dragover');
+    });
+    
+    fileUploadLabel.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadLabel.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileUpload();
+        }
+    });
+    
+    fileInput.addEventListener('change', handleFileUpload);
+    
+    function handleFileUpload() {
+        if (fileInput.files.length) {
+            const fileName = fileInput.files[0].name;
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'mt-3 text-center';
+            fileInfo.innerHTML = `
+                <p class="text-green-400 font-medium">${fileName}</p>
+                <p class="text-xs text-gray-500">${(fileInput.files[0].size / 1024).toFixed(1)} KB</p>
+            `;
+            
+            // Remove previous file info if exists
+            const existingInfo = fileUploadLabel.querySelector('.file-info');
+            if (existingInfo) {
+                fileUploadLabel.removeChild(existingInfo);
+            }
+            
+            fileInfo.classList.add('file-info');
+            fileUploadLabel.appendChild(fileInfo);
+            
+            // Submit the form
+            submitForm();
+        }
+    }
+    
+    function submitForm() {
+        const form = document.getElementById("upload-form");
+        const formData = new FormData(form);
+        document.getElementById("progress-container").classList.remove("hidden");
+
+        // Animate filtering bar to 100% over 6 seconds
+        animateBar("filtering-bar", "filtering-percent", 100, 6000);
+
+        // Upload the form via AJAX
+        fetch("/upload", {
+            method: "POST",
+            body: formData,
+        }).then(() => {
+            // Poll server until upload is done
+            const interval = setInterval(() => {
+                fetch("/check_vectors_uploaded")
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.done) {
+                            clearInterval(interval);
+                            animateBar("background-bar", "background-percent", 100, 3000);
+                            setTimeout(() => {
+                                document.getElementById("next-button").classList.remove("hidden");
+                            }, 3200);
+                        }
+                    });
+            }, 1000);
+        });
+    }
+
+    function animateBar(barId, percentId, targetWidth, duration) {
+        const bar = document.getElementById(barId);
+        const percent = document.getElementById(percentId);
+        let width = 0;
+        const intervalTime = 20;
+        const step = targetWidth / (duration / intervalTime);
+
+        const interval = setInterval(() => {
+            if (width >= targetWidth) {
+                clearInterval(interval);
+            } else {
+                width += step;
+                bar.style.width = width + "%";
+                percent.textContent = Math.min(Math.round(width), 100) + "%";
+            }
+        }, intervalTime);
+    }
+</script>
+{% endblock %}

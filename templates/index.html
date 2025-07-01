@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - TalentAI{% endblock %}
+
+{% block content %}
+<style>
+    html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    }
+
+    body.scroll-locked {
+        overflow: hidden;
+    }
+
+    #zoom-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        transition: transform 0.3s ease-out, opacity 0.8s ease-out;
+        transform-origin: center bottom;
+        z-index: 50;
+        background: linear-gradient(to bottom, #1f2937, #312e81);
+        opacity: 1;
+        
+    }
+
+    #zoom-container.fade-out {
+        opacity: 0;
+        transform: scale(2.5);
+        pointer-events: none;
+    }
+
+    .blackhole {
+        width: 1600px;
+        height: 1600px;
+        border-radius: 50%;
+        background: radial-gradient(circle at center, #000000 0%, #000000 40%, rgba(0, 0, 0, 0.8) 55%, transparent 80%);
+        box-shadow:
+            0 0 20px 5px rgba(255, 255, 255, 0.715),
+            0 0 60px 20px rgba(140, 140, 255, 0.507),
+            0 0 120px 40px rgba(200, 200, 255, 0.582);
+        filter: blur(0.2px);
+        z-index: 2; 
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    @keyframes swirl {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .main-text {
+        position: relative;
+        z-index: 10;
+        top: -10%;
+        text-align: center;
+        color: white;
+    }
+
+    #page-content {
+        opacity: 0;
+        transform: translateY(100px);
+        transition: opacity 1s ease, transform 1s ease;
+    }
+
+    #page-content.revealed {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    #blackhole-reveal {
+        position: absolute;
+        top: 150vh;
+        width: 100%;
+        text-align: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        z-index: 5;
+    }
+
+    .stars {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+        z-index: 0; 
+    }
+
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite ease-in-out;
+        opacity: 0.8;
+    }
+
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.5); }
+    }
+
+</style>
+
+<!-- ZOOM EFFECT CONTAINER -->
+<div id="zoom-container">
+    <div class="flex items-center justify-center h-full flex-col relative overflow-hidden text-white">
+        <!-- Stars Background Layer -->
+        <div class="stars" id="stars"></div>
+
+        <!-- Blackhole and Text -->
+        <div class="blackhole"></div>
+        <div class="main-text">
+            <h1 class="text-5xl font-bold">Hello 👋, Alex</h1>
+            <div class="mt-6 flex justify-center space-x-4">
+                <a href="#jobs" class="px-6 py-3 bg-purple-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:bg-purple-700">
+                    Past Job Listings
+                </a>
+                <a href="#features" class="px-6 py-3 bg-gray-800 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:bg-gray-700">
+                    Features
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="blackhole-reveal">
+</div>
+
+<!-- Main Content -->
+<div id="page-content">
+        <!-- About Section -->
+    <section id="about" class="relative py-20 overflow-hidden">
+
+        <div class="absolute inset-0 bg-gray-900 z-0"></div>
+        <div class="absolute -bottom-04 w-64 h-64 bg-indigo-900 rounded-full filter blur-3xl opacity-60 z-0"></div>
+        <div class="absolute -bottom-32 -right-32 w-64 h-64 bg-indigo-900 rounded-full filter blur-3xl opacity-80 z-0"></div>
+        
+        <div class="container mx-auto px-4 max-w-6xl relative z-10">
+            <br><br>
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-white mb-4">Your Past Listings</h2>
+                <p class="text-gray-300 max-w-2xl mx-auto">Key milestones in my career developing AI recruitment solutions</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <!-- Job 1 -->
+                <div class="bg-gray-800 bg-opacity-70 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-indigo-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-900 bg-opacity-50 p-3 rounded-lg mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white">AI Recruitment Architect</h3>
+                    </div>
+                    <p class="text-gray-400 mb-2">TalentAI • 2021-Present</p>
+                    <p class="text-gray-300">Designed the vector similarity engine and automated interview pipeline that processes thousands of candidates monthly.</p>
+                </div>
+                
+                <!-- Job 2 -->
+                <div class="bg-gray-800 bg-opacity-70 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-indigo-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-900 bg-opacity-50 p-3 rounded-lg mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white">Machine Learning Engineer</h3>
+                    </div>
+                    <p class="text-gray-400 mb-2">HireTech • 2018-2021</p>
+                    <p class="text-gray-300">Developed NLP models for resume parsing and candidate scoring systems with 92% prediction accuracy.</p>
+                </div>
+                
+                <!-- Job 3 -->
+                <div class="bg-gray-800 bg-opacity-70 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-indigo-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-purple-900 bg-opacity-50 p-3 rounded-lg mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white">Data Science Consultant</h3>
+                    </div>
+                    <p class="text-gray-400 mb-2">Freelance • 2015-2018</p>
+                    <p class="text-gray-300">Built custom recommendation systems for HR platforms and early prototype of voice analysis algorithms.</p>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="/csv" class="inline-flex items-center px-6 py-3 border border-gray-600 text-gray-300 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:bg-gray-700 hover:text-white hover:border-indigo-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Add Position
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="relative py-20 overflow-hidden">
+        <div class="absolute inset-0 bg-gray-900 z-0"></div>
+        <div class="absolute -top-04 -left-5 w-64 h-64 bg-indigo-900 rounded-full filter blur-3xl opacity-50 z-0"></div>
+        <div class="absolute -top-09 -right-5 w-64 h-64 bg-indigo-900 rounded-full filter blur-3xl opacity-50 z-0"></div>
+        <div class="absolute -top-32 -right-32 w-64 h-64 bg-indigo-900 rounded-full filter blur-3xl opacity-80 z-0"></div>
+        
+        <div class="container mx-auto px-4 max-w-6xl relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-white mb-4">How Our AI Works</h2>
+                <p class="text-gray-300 max-w-2xl mx-auto">Three pillars of our intelligent hiring platform</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 - Vector Matching -->
+                <div class="bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-xl border border-gray-700 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-indigo-500">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white">▶</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3 text-center">Vector Similarity Matching</h3>
+                    <p class="text-gray-300 mb-4 text-center">
+                        Candidate profiles and job requirements are embedded into 768-dimensional vectors using our fine-tuned language model.
+                    </p>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Cosine similarity: <code class="bg-gray-700 px-1 rounded text-gray-200">(A·B)/(||A|| ||B||)</code></span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Top 5% candidates automatically advanced</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Feature 2 - AI Interviews -->
+                <div class="bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-xl border border-gray-700 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-indigo-500">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white">⚙️</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3 text-center">AI-Conducted Interviews</h3>
+                    <p class="text-gray-300 mb-4 text-center">
+                        Natural conversations powered by our voice engine with dynamic question generation.
+                    </p>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Behavioral: "Tell me about a difficult decision you made"</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Technical: Domain-specific problem solving</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Feature 3 - Analytics -->
+                <div class="bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-xl border border-gray-700 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-indigo-500">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white">👤</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3 text-center">Conversation Analytics</h3>
+                    <p class="text-gray-300 mb-4 text-center">
+                        Every interview is processed through our multimodal analysis pipeline.
+                    </p>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Vocal analysis: confidence, clarity, tone</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Content analysis: knowledge, relevance</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Composite score (0-100) with ranking</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<footer id="contact" class="bg-gray-800 text-white py-8">
+    <div class="container mx-auto text-center">
+        <h2 class="text-2xl font-bold mb-4">Contact Us</h2>
+        <p class="mb-4">Feel free to reach out through any of the platforms below.</p>
+        <p>Email: contact@example.com</p>
+        <p>Phone: (123) 456-7890</p>
+    </div>
+</footer>
+
+<script>
+    const starContainer = document.getElementById('stars');
+
+    const blackholeX = 50;
+    const blackholeY = 100; 
+    const blackholeRadius = 40; 
+
+    for (let i = 0; i < 120; i++) {
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+
+        const dx = x - blackholeX;
+        const dy = y - blackholeY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < blackholeRadius) continue;
+
+        const star = document.createElement('div');
+        star.classList.add('star');
+        star.style.top = `${y}%`;
+        star.style.left = `${x}%`;
+        star.style.animationDelay = `${Math.random() * 5}s`;
+        star.style.opacity = Math.random();
+        starContainer.appendChild(star);
+    }
+
+    const zoomContainer = document.getElementById('zoom-container');
+    const reveal = document.getElementById('blackhole-reveal');
+    const pageContent = document.getElementById('page-content');
+    const body = document.body;
+
+    let isZoomedIn = false;
+    let cooldown = false;
+
+    function lockScroll() {
+        body.classList.add('scroll-locked');
+        window.scrollTo(0, 0);
+    }
+
+    function unlockScroll() {
+        body.classList.remove('scroll-locked');
+    }
+
+    function zoomOut() {
+        if (cooldown || isZoomedIn) return;
+        cooldown = true;
+        isZoomedIn = true;
+
+        zoomContainer.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
+        zoomContainer.style.transform = 'scale(2.5)';
+        zoomContainer.style.opacity = '0';
+
+        setTimeout(() => {
+            zoomContainer.classList.add('hidden');
+            pageContent.classList.add('revealed');
+            unlockScroll();
+            cooldown = false;
+        }, 1500);  
+    }
+
+    function zoomIn() {
+        if (cooldown || !isZoomedIn) return;
+        cooldown = true;
+        isZoomedIn = false;
+
+        lockScroll();
+        zoomContainer.classList.remove('hidden');
+        zoomContainer.style.transition = 'none';
+        zoomContainer.style.transform = 'scale(3.5)';
+        zoomContainer.style.opacity = '0';
+
+        zoomContainer.offsetHeight;
+
+        zoomContainer.style.transition = 'transform 1s ease, opacity 1s ease';
+        zoomContainer.style.transform = 'scale(1)';
+        zoomContainer.style.opacity = '1';
+
+        setTimeout(() => {
+            pageContent.classList.remove('revealed');
+            cooldown = false;
+        }, 2000); 
+    }
+
+
+    lockScroll();
+
+    window.addEventListener('wheel', function (e) {
+        const delta = e.deltaY;
+
+        if (!isZoomedIn && !cooldown && delta > 10) {
+            e.preventDefault();
+            zoomOut();
+        }
+
+        if (isZoomedIn && window.scrollY < 60 && delta < -10 && !cooldown) {
+            e.preventDefault();
+            zoomIn();
+        }
+    }, { passive: false });
+</script>
+
+{% endblock %}

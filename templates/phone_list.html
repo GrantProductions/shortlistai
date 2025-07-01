@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+
+{% block title %}Interviewed Applicants - TalentAI{% endblock %}
+
+{% block content %}
+<style>
+    .applicants-container {
+        background-color: rgba(31, 41, 55, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(55, 65, 81, 0.5);
+    }
+    
+    .table-header {
+        background-color: rgba(17, 24, 39, 0.8);
+    }
+    
+    .table-row {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+    }
+    
+    .table-row:hover {
+        background-color: rgba(55, 65, 81, 0.3);
+    }
+    
+    .status-accepted {
+        color: #10B981;
+    }
+    
+    .status-rejected {
+        color: #EF4444;
+    }
+    
+    .status-pending {
+        color: #F59E0B;
+    }
+    
+    .transcript-box {
+        background-color: rgba(17, 24, 39, 0.8);
+        border: 1px solid rgba(55, 65, 81, 0.5);
+    }
+
+    /* Parallax effect for gradient circles */
+    .parallax-circle {
+        position: absolute;
+        will-change: transform;
+        transition: transform 0.1s linear;
+    }
+</style>
+
+<div class="min-h-screen bg-gray-900 pt-24 pb-12 px-4 relative overflow-hidden">
+    <!-- Background Gradient Circles with parallax classes -->
+    <div id="circle1" class="parallax-circle -bottom-20 -left-20 w-80 h-80 bg-indigo-900 rounded-full filter blur-3xl opacity-40 z-0" data-speed="0.3"></div>
+    <div id="circle2" class="parallax-circle top-1/3 -right-16 w-64 h-64 bg-purple-900 rounded-full filter blur-3xl opacity-30 z-0" data-speed="0.5"></div>
+    <div id="circle3" class="parallax-circle top-1/5 left-1/5 w-96 h-96 bg-blue-900 rounded-full filter blur-2xl opacity-20 z-0" data-speed="0.2"></div>
+
+    <div class="max-w-6xl mx-auto relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold text-white mb-3">Interviewed Applicants</h1>
+            <p class="text-gray-400 max-w-lg mx-auto">
+                Review candidate interviews and their matching scores
+            </p>
+        </div>
+        
+        <!-- Applicants Table -->
+        <div class="applicants-container rounded-xl shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="table-header">
+                        <tr class="text-left text-gray-300">
+                            <th class="px-6 py-4">Name</th>
+                            <th class="px-6 py-4">LinkedIn</th>
+                            <th class="px-6 py-4">Resume</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                            <th class="px-6 py-4 text-center">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicants-tbody" class="divide-y divide-gray-800 text-gray-300">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Back Button -->
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('phone_list') }}"
+                class="inline-flex items-center px-6 py-3 rounded-lg border border-gray-600 text-gray-300 hover:text-white hover:border-indigo-500 hover:bg-gray-700 transition-colors duration-200"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Parallax effect for gradient circles
+    document.addEventListener('DOMContentLoaded', function() {
+        const circles = document.querySelectorAll('.parallax-circle');
+        
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.pageYOffset;
+            
+            circles.forEach(circle => {
+                const speed = parseFloat(circle.getAttribute('data-speed'));
+                const yPos = -(scrollPosition * speed);
+                
+                circle.style.transform = `translate3d(0, ${yPos}px, 0)`;
+            });
+        });
+    });
+
+    const statusIcons = {
+        waiting: "/static/image/csv.png",
+        initiated: "/static/image/waiting.png",
+        ringing: "/static/image/waiting.png",
+        answered: "/static/image/waiting.png",
+        done: "/static/image/check.png",
+        completed: "/static/image/check.png",
+        failed: "/static/image/remove.png",
+    };
+
+    function formatTime(ts) {
+        if (!ts) return "...";
+        const d = new Date(ts);
+        return d.toLocaleString();
+    }
+
+    function calculateDuration(start, end) {
+        if (!start || !end) return "N/A";
+        try {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const durationMs = endDate - startDate;
+            
+            const seconds = Math.floor((durationMs / 1000) % 60);
+            const minutes = Math.floor((durationMs / (1000 * 60)) % 60);
+            const hours = Math.floor((durationMs / (1000 * 60 * 60)) % 24);
+            
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } catch {
+            return "N/A";
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return "";
+        return text.replace(/[&<>"']/g, function (m) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+            }[m];
+        });
+    }
+
+    // Render transcript as Q&A
+    function renderTranscript(history) {
+        if (!Array.isArray(history) || history.length === 0)
+            return "No transcript yet.";
+        let html = '<div class="space-y-2">';
+        history.forEach((item) => {
+            if (!item.role || !item.content) return;
+            let role =
+                item.role === "interviee"
+                    ? "Interviewee"
+                    : item.role.charAt(0).toUpperCase() + item.role.slice(1);
+            let color =
+                item.role === "interviewer" || item.role === "assistant"
+                    ? "text-indigo-400"
+                    : "text-gray-300";
+            html += `<div class="mb-1"><span class="font-semibold ${color}">${escapeHtml(
+                role
+            )}:</span> <span>${escapeHtml(item.content)}</span></div>`;
+        });
+        html += "</div>";
+        return html;
+    }
+
+    function renderApplicants(applicants) {
+        const tbody = document.getElementById("applicants-tbody");
+        tbody.innerHTML = "";
+        applicants.forEach((app, idx) => {
+            const conv = app.conversation;
+            const status = conv ? conv.status || "waiting" : "waiting";
+            const icon = statusIcons[status] || statusIcons["waiting"];
+            const interviewScore = conv ? conv.score || "N/A" : "N/A";
+            const started =
+                conv && conv.started_at ? formatTime(conv.started_at) : "N/A";
+            const ended =
+                conv && conv.updated_at ? formatTime(conv.updated_at) : "N/A";
+            const duration = calculateDuration(
+                conv && conv.started_at ? conv.started_at : null,
+                conv && conv.updated_at ? conv.updated_at : null
+            );
+            
+            let transcriptHtml = "Generating transcript...";
+            if (conv && conv.history) {
+                try {
+                    // If already parsed, use as is; else, parse JSON string
+                    let history = Array.isArray(conv.history)
+                        ? conv.history
+                        : JSON.parse(conv.history);
+                    transcriptHtml = renderTranscript(history);
+                } catch {
+                    transcriptHtml = "Transcript unavailable.";
+                }
+            }
+
+            tbody.innerHTML += `
+            <tr class="table-row">
+                <td class="px-6 py-4 relative">
+                    <span class="text-lg font-medium text-white">${escapeHtml(app.name)}</span>
+                    <button onclick="toggleDetails(${idx})" class="absolute top-4 right-6 text-gray-400 hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </td>
+                <td class="px-6 py-4">
+                    <a href="${escapeHtml(
+                        app.linkedin
+                    )}" class="text-indigo-400 hover:text-indigo-300 underline transition-colors" target="_blank">
+                        ${escapeHtml(app.linkedin)}
+                    </a>
+                </td>
+                <td class="px-6 py-4">
+                    <a href="${escapeHtml(app.resume_link)}" class="text-indigo-400 hover:text-indigo-300 underline transition-colors" target="_blank">
+                        View Resume
+                    </a>
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <div class="flex items-center justify-center">
+                        <img id="status-${idx}" src="${icon}" class="w-5 h-5 mr-1" alt="status"/>
+                        ${status.charAt(0).toUpperCase() + status.slice(1)}
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-center font-semibold ${app.score ? 'text-white' : 'text-gray-400 italic'}">
+                    ${escapeHtml(interviewScore || "N/A")}
+                </td>
+            </tr>
+            <tr id="details-${idx}" class="hidden">
+                <td colspan="5" class="p-6 bg-gray-900/50 transcript-box">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Start Time</p>
+                            <p class="text-white" id="start-${idx}">${started}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">End Time</p>
+                            <p class="text-white" id="end-${idx}">${ended}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Duration</p>
+                            <p class="text-white">${duration}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-2">Transcript:</p>
+                    <div id="transcript-${idx}" class="p-4 rounded bg-gray-800/50 text-gray-300 text-sm" style="white-space:pre-line; max-height:300px; overflow:auto;">
+                        ${transcriptHtml}
+                    </div>
+                </td>
+            </tr>
+            `;
+        });
+    }
+
+    function toggleDetails(index) {
+        const row = document.getElementById(`details-${index}`);
+        if (row) row.classList.toggle("hidden");
+    }
+
+    async function pollConversations() {
+        try {
+            const res = await fetch("/api/conversations_status");
+            const applicants = await res.json();
+            renderApplicants(applicants);
+        } catch (e) {
+            console.error("Error fetching conversations:", e);
+        }
+        setTimeout(pollConversations, 3000);
+    }
+
+    window.onload = function() {
+        pollConversations();
+    };
+</script>
+{% endblock %}
